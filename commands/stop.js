@@ -8,7 +8,7 @@ module.exports = {
 		serverQueue.connection.dispatcher.end();
         if(serverQueue.radio){
             serverQueue.voiceChannel.leave();
-            message.client.queue.delete(guild.id);
+            //message.client.queue.delete(guild.id);
             serverQueue.gqrxUdpServer.close();
             serverQueue.gqrxUdpServer=null;
         }
