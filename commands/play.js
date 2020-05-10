@@ -43,8 +43,17 @@ module.exports = {
           
           console.log("search "+args.slice(1).join(" "));
         const searchResults = await ytsr(args.slice(1).join(" "), options);
-        
+        if(!validURL2(searchResults.items[0].link)){
+            return message.channel.send(
+          "Ryp!"
+            );
+            console.log("bad url "+searchResults.items[0].link);
+        }else{
+            console.log("url "+searchResults.items[0].link);
+        }
         songInfo = await ytdl.getInfo(searchResults.items[0].link);//await ytdl.getInfo(args[1]);
+        
+            
       }
       const song = {
         title: songInfo.title,
