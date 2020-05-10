@@ -46,8 +46,7 @@ client.on('message', async message => {
 		}
 	} catch (error) {
 		console.error(error);
-        const sss = client.emojis.find(emoji => emoji.name === "SSSsss");
-		message.reply(`Nice try! ${sss}`);
+		message.reply(`Ezt nem teheted! :[`);
 	}
 });
 

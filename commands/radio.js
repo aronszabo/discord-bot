@@ -163,8 +163,7 @@ var connection ;
           return message.channel.send(err);
         }
      // }
-     const sch = message.client.emojis.find(emoji => emoji.name === "sch");
-    message.channel.send(`Már megy is az ${modulation} **${freq}** Hz! ${sch}`);
+    message.channel.send(`Már megy is az ${modulation} **${freq}** Hz!`);
 // emits when any error occurs
 udpServer.on('error',function(error){
   console.log('Error: ' + error);
