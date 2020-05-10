@@ -37,9 +37,11 @@ module.exports = {
       }
       var songInfo;
       if(validURL2(args[1])){
+          console.log("url "+args[1]);
         songInfo = await ytdl.getInfo(args[1]);
       }else{
           
+          console.log("search "+args.slice(1).join(" "));
         const searchResults = await ytsr(args.slice(1).join(" "), options);
         
         songInfo = await ytdl.getInfo(searchResults.items[0].link);//await ytdl.getInfo(args[1]);
