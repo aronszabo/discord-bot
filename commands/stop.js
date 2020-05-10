@@ -7,6 +7,8 @@ module.exports = {
 		serverQueue.songs = [];
 		serverQueue.connection.dispatcher.end();
         if(serverQueue.radio){
+            serverQueue.voiceChannel.leave();
+            message.client.queue.delete(guild.id);
             serverQueue.gqrxUdpServer.close();
             serverQueue.gqrxUdpServer=null;
         }
