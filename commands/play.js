@@ -1,9 +1,18 @@
 const { Util } = require("discord.js");
 const ytdl = require("ytdl-core");
-
+const ytsr = require('ytsr');
+function validURL2(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(str);
+}
 module.exports = {
   name: "play",
-  description: "Play a song in your channel!",
+  description: "Csapass egy számot youtuberól!",
   async execute(message) {
     try {
       const args = message.content.split(" ");
@@ -13,22 +22,34 @@ module.exports = {
       const voiceChannel = message.member.voice.channel;
       if (!voiceChannel)
         return message.channel.send(
-          "You need to be in a voice channel to play music!"
+          "Ehhez voiceban kell lenned!"
         );
       const permissions = voiceChannel.permissionsFor(message.client.user);
       if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
         return message.channel.send(
-          "I need the permissions to join and speak in your voice channel!"
+          "Nincs permissionom (lehetetlen)!"
         );
       }
 
-      const songInfo = await ytdl.getInfo(args[1]);
+      
+      var options = {
+        limit: 1
+      }
+      var songInfo;
+      if(validURL2(args[1])){
+        songInfo = await ytdl.getInfo(args[1]);
+      }else{
+          
+        const searchResults = await ytsr(args.slice(1).join(" "), options);
+        
+        songInfo = await ytdl.getInfo(searchResults.items[0].link);//await ytdl.getInfo(args[1]);
+      }
       const song = {
         title: songInfo.title,
         url: songInfo.video_url
       };
 
-      if (!serverQueue) {
+      if (!serverQueue || (serverQueue.radio==true && serverQueue.gqrxUdpServer==null)) {
         const queueContruct = {
           textChannel: message.channel,
           voiceChannel: voiceChannel,
@@ -52,10 +73,21 @@ module.exports = {
           return message.channel.send(err);
         }
       } else {
-        serverQueue.songs.push(song);
-        return message.channel.send(
-          `${song.title} has been added to the queue!`
+            if(serverQueue.radio){
+                return message.channel.send(
+
+                
+          `${song.title}? Bocsi, már megy a rádió!`
         );
+            }else{
+            serverQueue.songs.push(song);
+        return message.channel.send(
+
+                
+          `${song.title}-t köszönjük szépen, queueolódtatott!`
+        );
+            }
+        
       }
     } catch (error) {
       console.log(error);
@@ -67,13 +99,16 @@ module.exports = {
     const queue = message.client.queue;
     const guild = message.guild;
     const serverQueue = queue.get(message.guild.id);
-
-    if (!song) {
+    if(serverQueue.radio){
+        serverQueue.textChannel.send(`Már szól a rádió!`);
+        return;
+    }
+    if (!song && !serverQueue.radio) {
       serverQueue.voiceChannel.leave();
       queue.delete(guild.id);
       return;
     }
-
+    
     const dispatcher = serverQueue.connection
       .play(ytdl(song.url))
       .on("finish", () => {
@@ -82,6 +117,6 @@ module.exports = {
       })
       .on("error", error => console.error(error));
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-    serverQueue.textChannel.send(`Start playing: **${song.title}**`);
+    serverQueue.textChannel.send(`Már megy is a: **${song.title}**`);
   }
 };

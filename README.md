@@ -1,3 +1,9 @@
+# Kafu-bot
+
+This discord bot is modified for the use on our ham radio club discord server.
+
+Features: Stream rtl-sdr gqrx to a voice channel
+
 # Discord-bot
 
 A simple discord bot which helps you manage your server by providing useful commands like playing music or deleting text messages.
