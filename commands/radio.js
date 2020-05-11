@@ -153,9 +153,9 @@ var connection ;
                 frequency: 10,   // in milliseconds. 10xes meret
                 chunkSize: 9600  // in bytes.
             });
-            const dispatcher =  connection.play(fifo, { type: 'converted', bitrate: 48 }).on("error", error => console.error(error));
+            const dispatcher =  connection.play(fifo, { type: 'converted', bitrate: 64 }).on("error", error => console.error(error));
     
-            dispatcher.setVolumeLogarithmic(queueContruct.volume / 5);
+            dispatcher.setVolumeLogarithmic(queueContruct.volume); // itt volt egy /5, azt kivettem
             
         } catch (err) {
           console.log(err);
