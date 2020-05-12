@@ -178,7 +178,7 @@ module.exports = {
 					bitrate: 96
 				}).on("error", error => console.error(error));
 
-				dispatcher.setVolumeLogarithmic(queueContruct.volume);
+				dispatcher.setVolumeLogarithmic(1);
 
 			} catch (err) {
 				console.log(err);

@@ -19,8 +19,8 @@ module.exports = {
 				serverQueue.gqrxUdpServer = null;
 				message.client.queue.delete(message.guild.id);
 			}
-			message.reply(' éppen elpusztítottad a bulit, jókedvet és minden szépet-jót a világon. KafuBot javaslata nyilvános lincselés.');
+			return message.reply(' éppen elpusztítottad a bulit, jókedvet és minden szépet-jót a világon. KafuBot javaslata nyilvános lincselés.');
 		} else
-			message.channel.send('Mit akarsz leállítani?');
+			return message.channel.send('Mit akarsz leállítani?');
 	},
 };

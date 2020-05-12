@@ -75,7 +75,7 @@ module.exports = {
                 try {
                     var connection = await voiceChannel.join();
                     queueContruct.connection = connection;
-                    this.play(message, queueContruct.songs[0]);
+                    return this.play(message, queueContruct.songs[0]);
                 } catch (err) {
                     console.log(err);
                     queue.delete(message.guild.id);
@@ -83,14 +83,32 @@ module.exports = {
                 }
             } else {
                 if (serverQueue.radio) {
-                    return message.channel.send(
-                        `${song.title}? Bocsi, már megy a rádió!`
-                    );
+                    return message.channel.send(`**${song.title}**? Bocsi, már megy a rádió!`).then((msg) => {
+			            msg.react('\u23f9').then((m)=>{
+							m.message.awaitReactions((reaction, user) => reaction.emoji.name === '\u23f9', { max: 2 }).then((collected) => {
+                        		message.client.commands.get('stop').execute(message).then((m2)=>{
+									msg.reactions.removeAll();
+									msg.react('\u25b6').then((m3)=>{
+										m3.message.awaitReactions((reaction, user) => reaction.emoji.name === '\u25b6', { max: 2 }).then((collected) => {
+				                			message.client.commands.get('play').execute(message).then(()=>{
+												msg.reactions.removeAll();
+											});
+				        				});
+									});
+								});
+                    		});
+						});
+                    });
                 } else {
                     serverQueue.songs.push(song);
-                    return message.channel.send(
-                        `${song.title}-t köszönjük szépen, queueolódtatott!`
-                    );
+                    return message.channel.send(`**${song.title}**-t köszönjük szépen, queueolódtatott!`).then((msg) => {
+			            msg.react('\u23ed').then((m)=>{
+							m.message.awaitReactions((reaction, user) => reaction.emoji.name === '\u23ed', { max: 2 }).then((collected) => {
+                        		message.client.commands.get('skip').execute(message);
+								msg.reactions.removeAll();
+                    		});
+						});
+                	});
                 }
 
             }
@@ -125,7 +143,7 @@ module.exports = {
             })
             .on("error", error => console.error(error));
         dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-        serverQueue.textChannel.send(`Már megy is a: **${song.title}**`);
+        var msgret = serverQueue.textChannel.send(`Már megy is a: **${song.title}**`);
         message.client.user.setPresence({
             status: 'online',
             activity: {
@@ -133,5 +151,6 @@ module.exports = {
                 type: 'LISTENING'
             }
         });
+		return msgret;
     }
 };
