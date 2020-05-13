@@ -5,35 +5,7 @@ var net = require('net');
 var udp = require('dgram');
 var streamBuffers = require('stream-buffers');
 var udpServer = null;
-
-async function callGQRX(msg) {
-	return new Promise((resolve, reject) => {
-		let client = new net.Socket()
-		client.setTimeout(1000);
-		client.setEncoding("ascii");
-
-		client.connect(7356, '127.0.0.1', () => {
-			client.write(msg + `\r\n`)
-		})
-
-		client.on('data', (data) => {
-			if(data == "RPRT 1\n") reject("Error received");
-			else resolve(data);
-			client.destroy()
-		})
-
-		client.on('close', () => {})
-
-		client.on('error', reject);
-
-		client.on('timeout', () => {
-			console.log("GQRX control socket timeout");
-			reject('Timeout');
-			client.destroy();
-		})
-
-	});
-}
+var gqrx = require("../util/gqrx");
 
 function exp10(m) {
 	var n = 1;
@@ -112,18 +84,18 @@ module.exports = {
 			} else {
 				freq = fr;
 			}
-			var fResp = await callGQRX(`F ${freq}`);
-			var mResp = await callGQRX(`M ${modulation}`);
+			var fResp = await gqrx.callGQRX(`F ${freq}`);
+			var mResp = await gqrx.callGQRX(`M ${modulation}`);
 			var rdsActive = false;
 
-			if((await callGQRX(`_`)).endsWith("rdsapi\n"))
+			if((await gqrx.callGQRX(`_`)).endsWith("rdsapi\n"))
 			{
 				if(modulation == "WFM" || modulation == "WFM_ST") {
-					var rResp = await callGQRX(`RDS 1`);
+					var rResp = await gqrx.callGQRX(`RDS 1`);
 					rdsActive = true;
 				}
 				else
-					var rResp = await callGQRX(`RDS 0`);
+					var rResp = await gqrx.callGQRX(`RDS 0`);
 			}
 
 			message.client.user.setPresence({
