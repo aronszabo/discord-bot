@@ -167,9 +167,9 @@ module.exports = {
 
 			// emits on new datagram msg
 			udpServer.on('message', function(msg, info) {
-				for (var i = 0; i < msg.length; i += 2) {
-					fifo.put(msg.slice(i, i + 2)); // igy csinalunk monobol stereot
-					fifo.put(msg.slice(i, i + 2));
+				for (var i = 0; i < msg.length; i += 4) {
+					fifo.put(msg.slice(i, i + 2)); //stereo
+					fifo.put(msg.slice(i + 2, i + 4));
 				}
 			});
 
