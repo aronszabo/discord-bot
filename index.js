@@ -25,13 +25,13 @@ client.once('ready', () => {
 	console.log('Ready!');
 	setInterval(async () => {
 		if(client.queue.values().next().value) {
-			if(client.queue.values().next().value.radio) {
-				if(client.queue.values().next().value.rds) {	
+			if(client.queue.values().next().value.radio && client.queue.values().next().value.rds) {
 					let station = await gqrx.callGQRX("RDS_STATION");
 					if(!station.includes('.')) client.user.setPresence({ status: 'online', activity: { name: station, type: 'LISTENING' } });
 					else client.user.setPresence({ status: 'online', activity: { name: client.queue.values().next().value.nowplaying, type: 'LISTENING' } });
-				} else client.user.setPresence({ status: 'online', activity: { name: client.queue.values().next().value.nowplaying, type: 'LISTENING' } });
-			} else client.user.setPresence({ status: 'online', activity: {name: client.queue.values().next().value.songs[0].title, type: 'LISTENING'} });
+			} else if(client.queue.values().next().value.radio || client.queue.values().next().value.nowplaying)
+				client.user.setPresence({ status: 'online', activity: {name: client.queue.values().next().value.nowplaying, type: 'LISTENING'} });
+			else client.user.setPresence({ status: 'online', activity: {name: 'YouTube', type: 'LISTENING'} });
 		} else client.user.setPresence({ status: 'idle', activity: {name: 'Pihen'} });
 	}, 2000);
 });

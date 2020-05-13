@@ -2,6 +2,17 @@ const {Util} = require("discord.js");
 const ytdl = require("ytdl-core");
 const ytsr = require('ytsr');
 
+Array.prototype.remove = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
+
 function validURL2(str) {
     var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
@@ -39,7 +50,9 @@ module.exports = {
             var songInfo;
             if (validURL2(args[1])) {
                 console.log("url " + args[1]);
-                songInfo = await ytdl.getInfo(args[1]);
+				try {
+                	songInfo = await ytdl.getInfo(args[1]);
+				} catch (e) { console.log(e); };
             } else {
 
                 console.log("search " + args.slice(1).join(" "));
@@ -75,7 +88,7 @@ module.exports = {
                 try {
                     var connection = await voiceChannel.join();
                     queueContruct.connection = connection;
-                    return this.play(message, queueContruct.songs[0]);
+                    return this.play(message, queueContruct.songs.shift());
                 } catch (err) {
                     console.log(err);
                     queue.delete(message.guild.id);
@@ -95,10 +108,25 @@ module.exports = {
                 } else {
                     serverQueue.songs.push(song);
                     let msg = await message.channel.send(`**${song.title}**-t köszönjük szépen, queueolódtatott!`);
-
-					await (await msg.react('\u23ed')).message.awaitReactions((reaction, user) => reaction.emoji.name === '\u23ed', { max: 2 });
-                    message.client.commands.get('skip').execute(message);
-					msg.reactions.removeAll();
+					
+					msg.react('\u23f9'); //stop
+					msg.react('\u23ed'); //skip
+					msg.react('\u25b6'); //play
+					const collector = msg.createReactionCollector((r, u) => u.id != msg.author.id, { time: 60000, dispose: true });
+					collector.on('collect', react => {
+						if(react.emoji.name == '\u23ed') message.client.commands.get('skip').execute(message);
+						if(react.emoji.name == '\u23f9') message.client.commands.get('stop').execute(message);
+						if(react.emoji.name == '\u25b6') {
+							serverQueue.songs.remove(song);
+							serverQueue.songs.unshift(song);
+							serverQueue.connection.dispatcher.end();
+							message.channel.send('Aztakva, de akaratos valaki... Akkor játszom rögtön');
+						}
+						msg.reactions.removeAll();
+					});
+					collector.on('end', collected => {
+						msg.reactions.removeAll();
+					});
                 }
 
             }
@@ -108,7 +136,7 @@ module.exports = {
         }
     },
 
-    play(message, song) {
+    async play(message, song) {
         const queue = message.client.queue;
         const guild = message.guild;
         const serverQueue = queue.get(message.guild.id);
@@ -121,26 +149,37 @@ module.exports = {
             queue.delete(guild.id);
             return;
         }
-
+		serverQueue.nowplaying = song.title;
         const dispatcher = serverQueue.connection
             .play(ytdl(song.url), {
                 type: 'unknown',
                 bitrate: 160
             })
             .on("finish", () => {
-                serverQueue.songs.shift();
-                this.play(message, serverQueue.songs[0]);
+				let song = serverQueue.songs.shift();
+	            this.play(message, song);
             })
             .on("error", error => console.error(error));
-        dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-        var msgret = serverQueue.textChannel.send(`Már megy is a: **${song.title}**`);
-        message.client.user.setPresence({
-            status: 'online',
-            activity: {
-                name: 'YouTube',
-                type: 'LISTENING'
-            }
-        });
+		dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+		let msgret = await serverQueue.textChannel.send(`Már megy is a: **${song.title}**`);
+		message.client.user.setPresence({
+           	status: 'online',
+           	activity: {
+           	    name: 'YouTube',
+           	    type: 'LISTENING'
+         	}
+		});
+		msgret.react('\u23f9'); //stop
+		msgret.react('\u23ed'); //skip
+		const collector = msgret.createReactionCollector((r, u) => u.id != msgret.author.id, { time: 60000, dispose: true });
+		collector.on('collect', react => {
+			if(react.emoji.name == '\u23ed') msgret.client.commands.get('skip').execute(message);
+			if(react.emoji.name == '\u23f9') msgret.client.commands.get('stop').execute(message);
+			msgret.reactions.removeAll();
+		});
+		collector.on('end', collected => {
+			msgret.reactions.removeAll();
+		});
 		return msgret;
     }
 };
