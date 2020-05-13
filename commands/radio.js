@@ -140,7 +140,11 @@ module.exports = {
 
 				udpServer = udp.createSocket('udp4');
 				queueContruct.gqrxUdpServer = udpServer;
-				queueContruct.nowplaying = `${modulation} ${freq} Hz!`;
+				if (freq === 150750000){
+					queueContruct.nowplaying = "Rántotthús Rádió";
+				} else {
+					queueContruct.nowplaying = `${modulation} ${freq} Hz!`;
+				}
 				var fifo = new streamBuffers.ReadableStreamBuffer({
 					frequency: 10, // in milliseconds. 10xes meret
 					chunkSize: 9600 // in bytes.
