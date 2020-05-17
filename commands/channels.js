@@ -58,10 +58,13 @@ module.exports = {
                 const queueContruct = {
                     textChannel: message.channel,
                     voiceChannel: message.member.voice.channel,
+					radio: false,
+					rds: false,
                     connection: null,
                     songs: [],
                     volume: 5,
-                    playing: true
+                    playing: true,
+					nowplaying: ''
                 };
 				message.client.queue.set(message.guild.id, queueContruct);
 				var connection = await message.member.voice.channel.join();

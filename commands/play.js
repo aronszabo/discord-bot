@@ -76,6 +76,8 @@ module.exports = {
                 const queueContruct = {
                     textChannel: message.channel,
                     voiceChannel: voiceChannel,
+					radio: false,
+					rds: false,
                     connection: null,
                     songs: [],
                     volume: 5,

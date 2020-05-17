@@ -196,9 +196,9 @@ module.exports = {
 			});
 
 			if(modulation == "FM")
-				udpServer.bind(7355);
-			else
 				udpServer.bind(7356);
+			else
+				udpServer.bind(7355);
 
 		} catch (error) {
 			console.log(error);
