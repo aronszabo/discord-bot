@@ -33,13 +33,13 @@ module.exports = {
 	description: 'Mi megy éppen.',
 	async execute(message) {
 	    const serverQueue = message.client.queue.get(message.guild.id);
-            if (!serverQueue) return message.channel.send('Nem szól semmi.');
-            if(serverQueue.radio){
-		var station = (await callGQRX("RDS_STATION")).replace("\n", "");
-		var radiotext = (await callGQRX("RDS_RT")).replace("\n", "");
-                return message.channel.send(`Ez szól: **${radiotext}** a **${station}** rádión`);
-            }else{
-                return message.channel.send(`Ez megy: ${serverQueue.songs[0].title}`);
-            }
+		if (!serverQueue) return message.channel.send('Nem szól semmi.');
+		if(serverQueue.rds){
+			var station = (await callGQRX("RDS_STATION")).replace("\n", "");
+			var radiotext = (await callGQRX("RDS_RT")).replace("\n", "");
+			return message.channel.send(`Ez szól: **${radiotext}** a **${station}** rádión`);
+		}else{
+			return message.channel.send(`Ez megy: ${serverQueue.songs[0].title}`);
+		}
 	},
 };

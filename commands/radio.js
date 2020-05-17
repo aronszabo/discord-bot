@@ -151,7 +151,9 @@ module.exports = {
 				});
 				const dispatcher = connection.play(fifo, {
 					type: 'converted',
-					bitrate: 96
+					bitrate: 96,
+					plp: 0,
+					fec: true
 				}).on("error", error => console.error(error));
 
 				dispatcher.setVolumeLogarithmic(1);
@@ -193,7 +195,10 @@ module.exports = {
 				console.log('Socket is closed !');
 			});
 
-			udpServer.bind(7355);
+			if(modulation == "FM")
+				udpServer.bind(7355);
+			else
+				udpServer.bind(7356);
 
 		} catch (error) {
 			console.log(error);
