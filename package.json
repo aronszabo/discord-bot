@@ -19,7 +19,6 @@
     "discord.js": "^12.5.1",
     "ffmpeg": "0.0.4",
     "fluent-ffmpeg": "^2.1.2",
-    "ytdl-core": "^4.5.0"
     "stream-buffers": "^3.0.2",
     "ytdl-core": "^4.5.0",
     "ytsr": "^3.0.0"
