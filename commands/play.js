@@ -66,12 +66,12 @@ module.exports = {
                 } else {
                     console.log("url " + searchResults.items[0].url);
                 }
-                songInfo = await ytdl.getBasicInfo(searchResults.items[0].url); //await ytdl.getInfo(args[1]);
+                songInfo = await ytdl.getInfo(searchResults.items[0].url); //await ytdl.getInfo(args[1]);
 				console.log(songInfo.player_response.videoDetails);
             }
             const song = {
-                title: songInfo.player_response.videoDetails.title,
-                url: "https://www.youtube.com/watch?v="+songInfo.player_response.videoDetails.videoId
+                title: songInfo.videoDetails.title,
+                url: songInfo.videoDetails.video_url
             };
 	    console.log(song);
 
