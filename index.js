@@ -50,6 +50,15 @@ client.on('message', async message => {
 	const command = client.commands.get(commandName);
 
 	if (message.author.bot) return;
+
+	//AKOSBOT /*
+	/*if(message.content.endsWith("?") && message.author.username == 'akos712')
+	{
+		message.channel.send('Keress rá: https://google.com/search?q=' + encodeURIComponent(message.content));
+		return;
+	}*/
+	//*/
+
 	if (!message.content.startsWith(prefix)) return;
 
 	try {
@@ -64,5 +73,53 @@ client.on('message', async message => {
 	}
 });
 
+// Track tanfolyam invites
 
+// Initialize the invite cache
+const invites = {};
+
+// A pretty useful method to create a delay without blocking the whole script.
+const wait = require('util').promisify(setTimeout);
+
+client.on('ready', () => {
+  // "ready" isn't really ready. We need to wait a spell.
+  wait(1000);
+  // Load all invites for all guilds and save them to the cache.
+  client.guilds.cache.forEach(g => {
+	
+    g.fetchInvites().then(guildInvites => {
+console.log(guildInvites);
+      invites[g.id] = guildInvites;
+    });
+  });
+});
+
+client.on('guildMemberAdd', member => {
+console.log("new mwnwber");
+  // To compare, we need to load the current invite list.
+  member.guild.fetchInvites().then(guildInvites => {
+    // This is the *existing* invites for the guild.
+    const ei = invites[member.guild.id];
+    // Update the cached invites for the guild.
+    invites[member.guild.id] = guildInvites;
+console.log(ei);
+    // Look through the invites, find the one for which the uses went up.
+    const invite = guildInvites.find(i => ei.get(i.code).uses < i.uses);
+    // This is just to simplify the message being sent below (inviter doesn't have a tag property)
+    const inviter = client.users.cache.get(invite.inviter.id);
+    // Get the log channel (change to your liking)
+    //const logChannel = member.guild.channels.find(channel => channel.name === "join-logs");
+    // A real basic message with the information we need. 
+	console.log(`${member.user.tag} joined using invite code ${invite.code} from ${inviter.tag}. Invite was used ${invite.uses} times since its creation.`);
+		    if (invite.code === "DwHUm5Y") {
+console.log(`Tanfolyam 2020 walcome.`);
+		        return member.roles.add(member.guild.roles.cache.find(role => role.name === "tanfolyam2020osz"));
+
+
+		    }
+  });
+});
+
+
+// end track tanfolyam invites
 client.login(token);

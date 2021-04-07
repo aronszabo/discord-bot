@@ -51,26 +51,29 @@ module.exports = {
             if (validURL2(args[1])) {
                 console.log("url " + args[1]);
 				try {
-                	songInfo = await ytdl.getInfo(args[1]);
+                	songInfo = await ytdl.getBasicInfo(args[1]);
 				} catch (e) { console.log(e); };
             } else {
 
                 console.log("search " + args.slice(1).join(" "));
                 const searchResults = await ytsr(args.slice(1).join(" "), options);
-                if (!validURL2(searchResults.items[0].link)) {
+       	        console.log(searchResults.items[0].url);
+		if (!validURL2(searchResults.items[0].url)) {
                     return message.channel.send(
                         "Ryp!"
                     );
-                    console.log("bad url " + searchResults.items[0].link);
+                    console.log("bad url " + searchResults.items[0].url);
                 } else {
-                    console.log("url " + searchResults.items[0].link);
+                    console.log("url " + searchResults.items[0].url);
                 }
-                songInfo = await ytdl.getInfo(searchResults.items[0].link); //await ytdl.getInfo(args[1]);
+                songInfo = await ytdl.getBasicInfo(searchResults.items[0].url); //await ytdl.getInfo(args[1]);
+				console.log(songInfo.player_response.videoDetails);
             }
             const song = {
-                title: songInfo.title,
-                url: songInfo.video_url
+                title: songInfo.player_response.videoDetails.title,
+                url: "https://www.youtube.com/watch?v="+songInfo.player_response.videoDetails.videoId
             };
+	    console.log(song);
 
             if (!serverQueue || (serverQueue.radio == true && serverQueue.gqrxUdpServer == null)) {
                 const queueContruct = {
@@ -152,6 +155,7 @@ module.exports = {
             return;
         }
 		serverQueue.nowplaying = song.title;
+		console.log("song " + song.url + " - " + song.title);
         const dispatcher = serverQueue.connection
             .play(ytdl(song.url), {
                 type: 'unknown',

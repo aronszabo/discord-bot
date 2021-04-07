@@ -14,7 +14,7 @@ function exp10(m) {
 }
 
 module.exports = {
-	name: "kfu",
+	name: "out-of-order-kfu",
 	description: "Hangolj a kafuban lévő sdr-re! Syntax: [moduláció] freki",
 	async execute(message) {
 		try {
